@@ -1,109 +1,84 @@
 package io.github.aaeess2005.koishiqbot;
 
-
+import io.github.aaeess2005.koishiqbot.module.Module;
 import io.github.aaeess2005.koishiqbot.util.FileUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.BotFactory;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.utils.BotConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.util.Scanner;
 
-import java.io.*;
-import java.util.Properties;
+import static io.github.aaeess2005.koishiqbot.Setting.*;
 
 public class Main {
 
-    private static Logger logger=LoggerFactory.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
     static Bot bot;
-    static LoginData loginData=new LoginData();
 
     public static void main(String[] args) {
         loadProperties();
-        logger.info("QQ ID: "+loginData.qid);
-        logger.info("Password: "+loginData.password);
-        logger.info("Protocol: "+loginData.protocol);
+        logger.info("QQ ID: " + qid);
+        logger.info("Password: " + password);
+        logger.info("Protocol: " + protocol);
 
-        bot = BotFactory.INSTANCE.newBot(loginData.qid, loginData.password, new BotConfiguration() {{
-            setProtocol(loginData.protocol);
+        openConsole();
+
+        bot = BotFactory.INSTANCE.newBot(qid, password, new BotConfiguration() {{
+            setProtocol(protocol);
             setHeartbeatStrategy(HeartbeatStrategy.STAT_HB);
             setWorkingDir(FileUtil.getFile(
-                    SharedConstant.WORKING_DIR+File.separator+"qq"
+                    SharedConstant.WORKING_DIR + File.separator + "qq",
+                    true
             ));
             fileBasedDeviceInfo();
         }});
         bot.login();
-    }
 
-    static void loadProperties(){
-        Properties properties = new Properties();
-        InputStream propertiesInputStream;
-        try {
-            propertiesInputStream = new FileInputStream(FileUtil.getFile(SharedConstant.WORKING_DIR+File.separator+"bot.properties"));
-        } catch (FileNotFoundException e) {
-            logger.error("I wonder how did this error happen :/");
-            throw new RuntimeException(e);
-        }
-        try {
-            properties.load(propertiesInputStream);
-
-            if(properties.getProperty("qid") == null || properties.getProperty("password") == null || properties.getProperty("protocol")==null){
-                logger.error("Properties error. Please check bot.properties");
-                createProperties();
-                throw new RuntimeException();
+        bot.getEventChannel().subscribeAlways(MessageEvent.class, event -> {
+            int index=event.getMessage().get(1).contentToString().indexOf(" ");
+            String key;
+            if (index!=-1){
+                key=event.getMessage().get(1).contentToString().substring(0,index);
+            }else {
+                key=event.getMessage().get(1).contentToString();
             }
 
-            long qid = Long.parseLong(properties.getProperty("qid"));
-            String password = properties.getProperty("password");
-            String protocol = properties.getProperty("protocol");
-            loginData.qid=qid;
-            loginData.password=password;
-            switch (protocol){
-                case "ANDROID_PHONE": {
-                    loginData.protocol = BotConfiguration.MiraiProtocol.ANDROID_PHONE;
-                    break;
-                }
-                case "ANDROID_PAD": {
-                    loginData.protocol = BotConfiguration.MiraiProtocol.ANDROID_PAD;
-                    break;
-                }
-                case "IPAD": {
-                    loginData.protocol = BotConfiguration.MiraiProtocol.IPAD;
-                    break;
-                }
-                case "MACOS": {
-                    loginData.protocol = BotConfiguration.MiraiProtocol.MACOS;
-                    break;
-                }
-                default: {
-                    logger.error("Properties error. Please check bot.properties");
-                    createProperties();
-                    throw new RuntimeException();
+            synchronized (ModuleManager.MODULES) {
+                for (Module module : ModuleManager.MODULES) {
+                    if (module.trigger.equals(key)) {
+                        if (!module.resolve(event, key))
+                            logger.warn(module.getClass().getSimpleName() + "went wrong");
+                    }
                 }
             }
-            propertiesInputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }catch (NumberFormatException e){
-            logger.error("Properties error. Please check bot.properties");
-            createProperties();
-            throw new RuntimeException();
-        }
+        });
     }
-    static void createProperties(){
-        try {
-            Properties properties = new Properties();
-            InputStream propertiesInputStream = new FileInputStream(FileUtil.getFile(SharedConstant.WORKING_DIR+File.separator+"bot.properties"));
-            properties.load(propertiesInputStream);
 
-            properties.setProperty("qid","123456");
-            properties.setProperty("password","example");
-            properties.setProperty("protocol","ANDROID_PHONE, ANDROID_PAD, IPAD, MACOS");
-
-            propertiesInputStream.close();
-            OutputStream out=new FileOutputStream(SharedConstant.WORKING_DIR+File.separator+"bot.properties");
-            properties.store(out,"");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    static void openConsole(){
+        Scanner scanner=new Scanner(System.in);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    switch (scanner.nextLine()){
+                        case "stop":{
+                            System.exit(0);
+                            break;
+                        }
+                        case "gc":{
+                            System.gc();
+                            break;
+                        }
+                        default:{
+                            System.out.println("Unknown command");
+                            break;
+                        }
+                    }
+                }
+            }
+        }).start();
     }
 }
