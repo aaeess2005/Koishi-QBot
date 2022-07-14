@@ -15,6 +15,7 @@ public class ShutdownModule extends Module{
                 System.exit(0);
             }
         }
+        event.getSubject().sendMessage("Not administrator, operation refuse");
         return false;
     }
 
