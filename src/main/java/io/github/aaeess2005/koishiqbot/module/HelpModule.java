@@ -11,7 +11,7 @@ public class HelpModule extends Module{
     @Override
     public boolean resolve(MessageEvent event){
         MessageChainBuilder mcb=new MessageChainBuilder();
-        mcb.append("可用指令：");
+        mcb.append("可用的Module：");
         for (Module module: ModuleManager.MODULES){
             mcb.append("\n");
             mcb.append(module.trigger).append("  ").append(module.getDescription());

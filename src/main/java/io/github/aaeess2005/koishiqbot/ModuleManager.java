@@ -13,6 +13,7 @@ public class ModuleManager {
         MODULES.add(new HelpModule());
         MODULES.add(new InfoModule());
         MODULES.add(new HelloWorldModule());
+        MODULES.add(new ShutdownModule());
         MODULES.add(new BakaModule());
         MODULES.add(new MCJEServerPingModule());
     }

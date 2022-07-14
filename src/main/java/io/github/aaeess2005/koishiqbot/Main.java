@@ -42,7 +42,11 @@ public class Main {
         }});
         bot.login();
 
-        subscribe();
+        try {
+            subscribe();
+        } catch (Exception e) {
+
+        }
     }
 
     static void subscribe(){
@@ -52,7 +56,7 @@ public class Main {
                 for (Module module : ModuleManager.MODULES) {
                     if (module.trigger.equals(key[0])) {
                         if (!module.resolve(event))
-                            logger.warn(module.getClass().getSimpleName() + "went wrong");
+                            logger.warn(module.getClass().getSimpleName() + " went wrong");
                     }
                 }
             }
