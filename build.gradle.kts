@@ -20,6 +20,9 @@ dependencies {
 
     //QR Code
     api("com.google.zxing:core:3.5.0")
+
+    //JOPT simple
+    api("net.sf.jopt-simple:jopt-simple:5.0.4")
 }
 
 group = "io.github.aaeess2005"
