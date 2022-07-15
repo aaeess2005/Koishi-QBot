@@ -23,11 +23,13 @@ public class Main {
     static Bot bot;
 
     public static void main(String[] args) {
-        loadProperties();
+        logger.info("Reading properties");
+        loadSetting();
 
-        logger.info("QQ ID: " + qid);
-        logger.info("Password: " + password);
-        logger.info("Protocol: " + protocol);
+        logger.info("QQ ID: {}", qid);
+        logger.info("Password: {}", password);
+        logger.info("Protocol: {}", protocol);
+        logger.info("Admin QID: {}", Arrays.toString(adminQid.toArray()));
 
         openConsole();
 
@@ -45,18 +47,18 @@ public class Main {
         try {
             subscribe();
         } catch (Exception e) {
-
+            logger.error(e.getLocalizedMessage());
         }
     }
 
     static void subscribe(){
         bot.getEventChannel().subscribeAlways(MessageEvent.class, event -> {
-            String[] key=StringUtil.separateString(event.getMessage().get(1).contentToString()," ");
+            String[] key=StringUtil.separateString(event.getMessage().get(1).toString()," ");
             synchronized (ModuleManager.MODULES) {
                 for (Module module : ModuleManager.MODULES) {
                     if (module.trigger.equals(key[0])) {
                         if (!module.resolve(event))
-                            logger.warn(module.getClass().getSimpleName() + " went wrong");
+                            logger.warn("{} went wrong", module.getClass().getSimpleName());
                     }
                 }
             }

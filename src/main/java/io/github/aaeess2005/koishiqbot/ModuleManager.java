@@ -16,5 +16,6 @@ public class ModuleManager {
         MODULES.add(new ShutdownModule());
         MODULES.add(new BakaModule());
         MODULES.add(new MCJEServerPingModule());
+        MODULES.add(new MikufansModule());
     }
 }

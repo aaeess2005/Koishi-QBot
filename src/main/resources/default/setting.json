@@ -1,0 +1,11 @@
+{
+  "bot": {
+    "qid": 114514,
+    "password": "哼呵呵啊啊啊啊啊啊啊啊啊啊啊",
+    "protocol": "ANDROID_PAD, ANDROID_PHONE, IPAD"
+  },
+  "admins": [
+    114514,
+    314159
+  ]
+}

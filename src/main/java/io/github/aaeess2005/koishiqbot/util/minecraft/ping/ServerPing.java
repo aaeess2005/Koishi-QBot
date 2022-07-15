@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ServerPing {
     public final InetSocketAddress host;
@@ -41,8 +42,12 @@ public class ServerPing {
     public JsonObject fetchData() throws IOException {
         //Open Connection
         Socket socket = new Socket();
-        socket.setSoTimeout(TIMEOUT);
-        socket.connect(host, TIMEOUT);
+        try {
+            socket.setSoTimeout(TIMEOUT);
+            socket.connect(host, TIMEOUT);
+        } catch (IOException e) {
+            throw e;
+        }
 
         //Init Stream
         OutputStream outputStream = socket.getOutputStream();
